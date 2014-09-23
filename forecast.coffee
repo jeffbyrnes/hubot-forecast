@@ -51,7 +51,7 @@ module.exports = (robot) ->
     _delay = "#{Math.round(delta / 60 / 1000)}"
 
     _now = new Date().getTime()
-    _link = "http://forecast.io/#/f/42.3823,-71.1269/#{Math.round(_now / 1000)}"
+    _link = "http://forecast.io/#/f/LAT,LNG/#{Math.round(_now / 1000)}"
 
     msg = "WEATHER: #{_percent}% chance of inclement weather in the next hour for at least #{_minutes} minutes. It will be worst in #{_delay} minutes (#{_intensity} precipitation). #{_link}"
 
