@@ -1,3 +1,20 @@
+# Description
+#   A hubot script to alert for inclement weather
+#
+# Configuration:
+#   LIST_OF_ENV_VARS_TO_SET
+#
+# Commands:
+#   none
+#
+# Notes:
+#   This script sets up automated alerts, and rquires only that the
+#   necessary EnvVars be set. See the README for details.
+#
+# Author:
+#   farski
+#   jeffbyrnes
+
 KV_KEY = 'forecast-alert-datapoint'
 
 module.exports = (robot) ->
