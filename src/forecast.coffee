@@ -3,6 +3,7 @@
 #
 # Configuration:
 #   HUBOT_FORECAST_KEY
+#   HUBOT_LAT_LNG
 #
 # Commands:
 #   none
@@ -16,6 +17,7 @@
 #   jeffbyrnes
 
 KV_KEY = 'forecast-alert-datapoint'
+LOCATION = process.env.HUBOT_LAT_LNG
 
 module.exports = (robot) ->
   postWeatherAlert = (json, callback) ->
@@ -68,7 +70,7 @@ module.exports = (robot) ->
     _delay = "#{Math.round(delta / 60 / 1000)}"
 
     _now = new Date().getTime()
-    _link = "http://forecast.io/#/f/LAT,LNG/#{Math.round(_now / 1000)}"
+    _link = "http://forecast.io/#/f/#{LOCATION}/#{Math.round(_now / 1000)}"
 
     msg = "WEATHER: #{_percent}% chance of inclement weather in the next hour for at least #{_minutes} minutes. It will be worst in #{_delay} minutes (#{_intensity} precipitation). #{_link}"
 
@@ -251,11 +253,10 @@ module.exports = (robot) ->
 
   fetchForecast = (callback) ->
 
-    location = 'LAT,LNG'
     forecastKey = process.env.HUBOT_FORECAST_KEY
     exclude = 'hourly,daily,flags'
 
-    base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{location}"
+    base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{LOCATION}"
     url = "#{base_url}?units=us&exclude=#{exclude}"
 
     console.log "[Forecast] Requesting forecast data: #{url}"
