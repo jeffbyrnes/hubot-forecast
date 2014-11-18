@@ -8,7 +8,9 @@ See [`src/forecast.coffee`](src/forecast.coffee) for full documentation.
 
 In hubot project repo, run:
 
-`npm install hubot-forecast --save`
+```bash
+$ npm install hubot-forecast --save
+```
 
 Then add **hubot-forecast** to your `external-scripts.json`:
 
@@ -16,9 +18,12 @@ Then add **hubot-forecast** to your `external-scripts.json`:
 ["hubot-forecast"]
 ```
 
-## Sample Interaction
+Finally, set the two necessary EnvVars:
 
+```bash
+$ heroku config:set \
+    HUBOT_FORECAST_KEY=... \
+    HUBOT_LAT_LNG=12.345,67.890
 ```
-user1>> hubot hello
-hubot>> hello!
-```
+
+You can find your Forecast.io API key on their [developers’ page](http://developer.forecast.io), and you can use [this tool](http://www.latlong.net) to determine your latitude & longitude from an address.
