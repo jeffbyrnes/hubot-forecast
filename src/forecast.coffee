@@ -4,6 +4,7 @@
 # Configuration:
 #   HUBOT_FORECAST_KEY
 #   HUBOT_LAT_LNG
+#   HUBOT_FORECAST_ROOM
 #
 # Commands:
 #   none
@@ -277,7 +278,7 @@ module.exports = (robot) ->
 
       # Only run during business hours
 
-      room = 'some_room@conf.hipchat.com'
+      room = process.env.HUBOT_FORECAST_ROOM
       fetchForecast (msg, dataPoint) ->
 
         # Cache the data point related to this alert and send the message to
