@@ -2,7 +2,7 @@
 #   A hubot script to alert for inclement weather
 #
 # Configuration:
-#   LIST_OF_ENV_VARS_TO_SET
+#   HUBOT_FORECAST_KEY
 #
 # Commands:
 #   none
@@ -251,8 +251,8 @@ module.exports = (robot) ->
 
   fetchForecast = (callback) ->
 
-    forecastKey = process.env.FORECAST_KEY
     location = 'LAT,LNG'
+    forecastKey = process.env.HUBOT_FORECAST_KEY
     exclude = 'hourly,daily,flags'
 
     base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{location}"
