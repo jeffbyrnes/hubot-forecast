@@ -1,6 +1,8 @@
 # hubot-forecast
 
-A hubot script to alert for inclement weather
+A hubot script to alert for inclement weather.
+
+All credit to @farski for the [original version](https://gist.github.com/farski/7d4049ac401c16c3adc6).
 
 See [`src/forecast.coffee`](src/forecast.coffee) for full documentation.
 
