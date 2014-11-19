@@ -1,6 +1,7 @@
 # hubot-forecast
 
 [![npm version](http://img.shields.io/npm/v/hubot-forecast.svg)](https://www.npmjs.org/package/hubot-forecast)
+[![Build Status](http://img.shields.io/travis/jeffbyrnes/hubot-forecast.svg)](https://travis-ci.org/jeffbyrnes/hubot-forecast)
 
 A hubot script to alert for inclement weather.
 
