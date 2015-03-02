@@ -6,7 +6,8 @@
 #   HUBOT_FORECAST_KEY - forecast.io API key
 #   HUBOT_FORECAST_ROOM - Room bulletins should be posted in
 #   HUBOT_FORECAST_TIME - On/off times in hours. Default 11-23
-#   HUBOT_LAT_LNG
+#   HUBOT_LATITUDE - Latitude in decimal degrees
+#   HUBOT_LONGITUDE - Longitude in decimal degrees
 #
 # Commands:
 #   None
@@ -21,7 +22,7 @@
 #   jeffbyrnes
 
 KV_KEY = 'forecast-alert-datapoint'
-LOCATION = process.env.HUBOT_LAT_LNG
+LOCATION = process.env.HUBOT_LATITUDE + ',' + process.env.HUBOT_LONGITUDE
 
 activeDays = (process.env.HUBOT_FORECAST_DAYS ? 'mon,tue,wed,thu,fri')
   .toLowerCase()
