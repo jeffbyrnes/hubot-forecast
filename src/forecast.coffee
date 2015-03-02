@@ -2,16 +2,19 @@
 #   A hubot script to alert for inclement weather
 #
 # Configuration:
-#   HUBOT_FORECAST_KEY
+#   HUBOT_FORECAST_DAYS - When do you need weather? Default: mon,tue,wed,thu,fri
+#   HUBOT_FORECAST_KEY - forecast.io API key
+#   HUBOT_FORECAST_ROOM - Room bulletins should be posted in
+#   HUBOT_FORECAST_TIME - On/off times in hours. Default 11-23
 #   HUBOT_LAT_LNG
-#   HUBOT_FORECAST_ROOM
 #
 # Commands:
-#   none
+#   None
 #
 # Notes:
 #   This script sets up automated alerts, and rquires only that the
 #   necessary EnvVars be set. See the README for details.
+#   All dates/times UTC
 #
 # Author:
 #   farski
@@ -19,6 +22,17 @@
 
 KV_KEY = 'forecast-alert-datapoint'
 LOCATION = process.env.HUBOT_LAT_LNG
+
+activeDays = (process.env.HUBOT_FORECAST_DAYS ? 'mon,tue,wed,thu,fri')
+  .toLowerCase()
+  .split ','
+activeHours = (process.env.HUBOT_FORECAST_TIME ? '11-23')
+  .split(',')
+  .reduce(((hours, range) ->
+    [start, stop] = range.split '-'
+    hours.concat([start...stop])
+  ), [])
+  .map (i) -> parseInt(i, 10)
 
 module.exports = (robot) ->
   postWeatherAlert = (json, callback) ->
@@ -271,12 +285,13 @@ module.exports = (robot) ->
   forecast = ->
     now = new Date()
 
-    isWeekday = (now.getDay() < 6)
-    isBusinessHours = (now.getUTCHours() >= 11 && now.getUTCHours() <= 23)
+    isActive =
+      now.toUTCString().substr(0,3).toLowerCase() in activeDays and
+      now.getUTCHours() in activeHours
 
-    if isWeekday && isBusinessHours
+    if isActive
 
-      # Only run during business hours
+      # Only run during specified time windows
 
       room = process.env.HUBOT_FORECAST_ROOM
       fetchForecast (msg, dataPoint) ->
