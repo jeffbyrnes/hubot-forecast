@@ -1,7 +1,7 @@
 {
   "name": "hubot-forecast",
   "description": "A hubot script to alert for inclement weather",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Jeff Byrnes <jeff@evertrue.com>",
   "license": "MIT",
 
