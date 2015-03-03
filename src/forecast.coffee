@@ -167,6 +167,7 @@ module.exports = (robot) ->
       # in the weather
 
       mostIntenseDataPoint = {}
+      totalIntensity = 0
 
       dataPoints = json['minutely']['data']
 
