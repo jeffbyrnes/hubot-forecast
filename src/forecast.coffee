@@ -4,13 +4,15 @@
 # Configuration:
 #   HUBOT_FORECAST_DAYS - When do you need weather? Default: mon,tue,wed,thu,fri
 #   HUBOT_FORECAST_KEY - forecast.io API key
-#   HUBOT_FORECAST_ROOM - Room bulletins should be posted in
+#   HUBOT_FORECAST_ROOM - Room bulletins should be posted in (if slack, just use channel, no #)
 #   HUBOT_FORECAST_TIME - On/off times in hours. Default 11-23
 #   HUBOT_LATITUDE - Latitude in decimal degrees
 #   HUBOT_LONGITUDE - Longitude in decimal degrees
+#   HUBOT_SLACK_BOTNAME - (Optional) Botname in slack
 #
 # Commands:
-#   None
+#   hubot weather - shows brief weather forecast from last cached data
+#   hubot forecast - same as hubot weather
 #
 # Notes:
 #   This script sets up automated alerts, and rquires only that the
@@ -20,6 +22,7 @@
 # Author:
 #   farski
 #   jeffbyrnes
+#   oehokie
 
 KV_KEY = 'forecast-alert-datapoint'
 LOCATION = process.env.HUBOT_LATITUDE + ',' + process.env.HUBOT_LONGITUDE
@@ -34,6 +37,8 @@ activeHours = (process.env.HUBOT_FORECAST_TIME ? '11-23')
     hours.concat([start...stop])
   ), [])
   .map (i) -> parseInt(i, 10)
+
+last_json = {}
 
 module.exports = (robot) ->
   postWeatherAlert = (json, callback) ->
@@ -90,7 +95,7 @@ module.exports = (robot) ->
 
     msg = "WEATHER: #{_percent}% chance of inclement weather in the next hour for at least #{_minutes} minutes. It will be worst in #{_delay} minutes (#{_intensity} precipitation). #{_link}"
 
-    postMessage(msg, mostIntenseDataPoint)
+    postMessage(msg, 'danger', mostIntenseDataPoint)
 
   handleClear = (json, callback) ->
     postMessage = callback
@@ -120,7 +125,7 @@ module.exports = (robot) ->
 
       msg = 'WEATHER: The weather should be clear for at least an hour.'
 
-      postMessage(msg, dataPoint)
+      postMessage(msg, 'good', dataPoint)
 
   handleNewWeather = (json, callback) ->
     isAnomaly = false
@@ -233,7 +238,7 @@ module.exports = (robot) ->
 
         msg = 'WEATHER: There should be a break in the weather for at least 30 minutes within the hour.'
 
-        postMessage(msg, alertDataPoint)
+        postMessage(msg, 'warning', alertDataPoint)
 
   handleWeather = (json, callback) ->
 
@@ -249,6 +254,8 @@ module.exports = (robot) ->
       handleContinuingWeather(json, callback)
 
   handleJSON = (json, callback) ->
+
+    last_json = json
 
     if json['minutely']
 
@@ -271,7 +278,7 @@ module.exports = (robot) ->
   fetchForecast = (callback) ->
 
     forecastKey = process.env.HUBOT_FORECAST_KEY
-    exclude = 'hourly,daily,flags'
+    exclude = 'flags'
 
     base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{LOCATION}"
     url = "#{base_url}?units=us&exclude=#{exclude}"
@@ -283,6 +290,22 @@ module.exports = (robot) ->
       if !err
         json = JSON.parse(body)
         handleJSON(json, callback)
+
+  manualForecast = (callback) ->
+
+    forecastKey = process.env.HUBOT_FORECAST_KEY
+    exclude = 'flags'
+
+    base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{LOCATION}"
+    url = "#{base_url}?units=us&exclude=#{exclude}"
+
+    console.log "[Forecast] Requesting forecast data: #{url}"
+
+    robot.http(url).get() (err, res, body) ->
+
+      if !err
+        json = JSON.parse(body)
+        callback(json)
 
   forecast = ->
     now = new Date()
@@ -296,7 +319,7 @@ module.exports = (robot) ->
       # Only run during specified time windows
 
       room = process.env.HUBOT_FORECAST_ROOM
-      fetchForecast (msg, dataPoint) ->
+      fetchForecast (msg, msgColor, dataPoint) ->
 
         # Cache the data point related to this alert and send the message to
         # the room
@@ -304,7 +327,20 @@ module.exports = (robot) ->
         dataPoint['__alertTime'] = now
         robot.brain.set(KV_KEY, dataPoint)
 
-        robot.messageRoom(room, msg)
+        if robot.adapterName == 'slack'
+          attachmentsObj = [ {
+            color: msgColor
+            title: 'Weather Update!'
+            text: msg
+            fallback: msg
+          } ]
+          robot.emit 'slack-attachment',
+            channel: room
+            content: attachmentsObj
+            username: (process.env.HUBOT_SLACK_BOTNAME ? 'hubot')
+            text: ''
+        else
+          robot.messageRoom(room, msg)
 
     else
 
@@ -318,3 +354,31 @@ module.exports = (robot) ->
 
   setInterval forecast, (5 * 60 * 1000)
   forecast()
+
+  processLast = (msg, last_json) ->
+    response = "Currently: #{last_json.currently.summary} #{last_json.currently.temperature}°F"
+    response += "\nToday: #{last_json.hourly.summary}"
+    response += "\nComing week: #{last_json.daily.summary}"
+    if robot.adapterName == 'slack'
+      attachmentsObj = [ {
+        color: '#000000'
+        title: 'Here is your weather report...'
+        text: response
+        fallback: response
+      } ]
+      robot.emit 'slack-attachment',
+        channel: msg.envelope.room
+        content: attachmentsObj
+        username: (process.env.HUBOT_SLACK_BOTNAME ? 'hubot')
+        text: ''
+    else
+      msg.send(response);
+
+
+  robot.respond /forecast|weather/i, (msg) ->
+    if Object.keys(last_json).length == 0
+      manualForecast (json) ->
+        last_json = json
+        processLast(msg, last_json)
+    else
+      processLast(msg, last_json)
