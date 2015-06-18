@@ -340,7 +340,7 @@ module.exports = (robot) ->
             username: (process.env.HUBOT_SLACK_BOTNAME ? 'hubot')
             text: ''
         else
-          robot.messageRoom(room, msg)
+          robot.messageRoom room, msg
 
     else
 
@@ -372,13 +372,13 @@ module.exports = (robot) ->
         username: (process.env.HUBOT_SLACK_BOTNAME ? 'hubot')
         text: ''
     else
-      msg.send(response)
+      msg.send response
 
 
   robot.respond /forecast|weather/i, (msg) ->
     if Object.keys(last_json).length == 0
       manualForecast (json) ->
         last_json = json
-        processLast(msg, last_json)
+        processLast msg, last_json
     else
-      processLast(msg, last_json)
+      processLast msg, last_json
