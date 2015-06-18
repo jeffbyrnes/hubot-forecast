@@ -328,17 +328,14 @@ module.exports = (robot) ->
         robot.brain.set(KV_KEY, dataPoint)
 
         if robot.adapterName == 'slack'
-          attachmentsObj = [ {
-            color: msgColor
-            title: 'Weather Update!'
-            text: msg
-            fallback: msg
-          } ]
           robot.emit 'slack-attachment',
             channel: room
-            content: attachmentsObj
-            username: (process.env.HUBOT_SLACK_BOTNAME ? 'hubot')
-            text: ''
+            content:
+              color: msgColor
+              title: 'Weather Update!'
+              text: msg
+              fallback: msg
+            message: ''
         else
           robot.messageRoom room, msg
 
@@ -360,17 +357,14 @@ module.exports = (robot) ->
     response += "\nToday: #{last_json.hourly.summary}"
     response += "\nComing week: #{last_json.daily.summary}"
     if robot.adapterName == 'slack'
-      attachmentsObj = [ {
-        color: '#000000'
-        title: 'Here is your weather report…'
-        text: response
-        fallback: response
-      } ]
       robot.emit 'slack-attachment',
         channel: msg.envelope.room
-        content: attachmentsObj
-        username: (process.env.HUBOT_SLACK_BOTNAME ? 'hubot')
-        text: ''
+        content:
+          color: '#000000'
+          title: 'Here is your weather report…'
+          text: response
+          fallback: response
+        message: ''
     else
       msg.send response
 
