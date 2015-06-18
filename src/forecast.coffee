@@ -362,7 +362,7 @@ module.exports = (robot) ->
     if robot.adapterName == 'slack'
       attachmentsObj = [ {
         color: '#000000'
-        title: 'Here is your weather report...'
+        title: 'Here is your weather report…'
         text: response
         fallback: response
       } ]
