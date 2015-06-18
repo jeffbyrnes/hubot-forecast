@@ -9,6 +9,8 @@ All credit to @farski for the [original version](https://gist.github.com/farski/
 
 See [`src/forecast.coffee`](src/forecast.coffee) for full documentation.
 
+Important notice for Slack users: you will need hubot-slack >= 3.3.0 due to the usage of Slack attachments.
+
 ## Installation
 
 In hubot project repo, run:
