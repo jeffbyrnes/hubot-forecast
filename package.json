@@ -1,7 +1,7 @@
 {
   "name": "hubot-forecast",
   "description": "A hubot script to alert for inclement weather",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Jeff Byrnes <thejeffbyrnes@gmail.com>",
   "contributors": [
     {
@@ -14,25 +14,20 @@
     }
   ],
   "license": "MIT",
-
   "keywords": [
     "hubot",
     "hubot-scripts"
   ],
-
   "repository": {
     "type": "git",
     "url": "git://github.com/jeffbyrnes/hubot-forecast.git"
   },
-
   "bugs": {
     "url": "https://github.com/jeffbyrnes/hubot-forecast/issues"
   },
-
   "dependencies": {
     "coffee-script": "~1.6"
   },
-
   "devDependencies": {
     "mocha": "*",
     "chai": "*",
@@ -44,9 +39,7 @@
     "matchdep": "~0.1.2",
     "grunt-contrib-watch": "~0.5.3"
   },
-
   "main": "index.coffee",
-
   "scripts": {
     "test": "grunt test"
   }
