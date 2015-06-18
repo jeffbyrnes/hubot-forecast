@@ -372,7 +372,7 @@ module.exports = (robot) ->
         username: (process.env.HUBOT_SLACK_BOTNAME ? 'hubot')
         text: ''
     else
-      msg.send(response);
+      msg.send(response)
 
 
   robot.respond /forecast|weather/i, (msg) ->
