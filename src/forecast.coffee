@@ -9,6 +9,7 @@
 #   HUBOT_LATITUDE - Latitude in decimal degrees
 #   HUBOT_LONGITUDE - Longitude in decimal degrees
 #   HUBOT_SLACK_BOTNAME - (Optional) Botname in slack
+#   HUBOT_FORECAST_UNITS - (Optional) Units to use. Use either 'us' or 'si'. Defaults to 'si'.
 #
 # Commands:
 #   hubot weather - shows brief weather forecast from last cached data
@@ -278,10 +279,11 @@ module.exports = (robot) ->
   fetchForecast = (callback) ->
 
     forecastKey = process.env.HUBOT_FORECAST_KEY
+    unitType = process.env.HUBOT_FORECAST_UNITS || 'si'
     exclude = 'flags'
 
     base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{LOCATION}"
-    url = "#{base_url}?units=us&exclude=#{exclude}"
+    url = "#{base_url}?units=#{unitType}&exclude=#{exclude}"
 
     console.log "[Forecast] Requesting forecast data: #{url}"
 
@@ -353,7 +355,11 @@ module.exports = (robot) ->
   forecast()
 
   processLast = (msg, last_json) ->
-    response = "Currently: #{last_json.currently.summary} #{last_json.currently.temperature}°F"
+    unitType = process.env.HUBOT_FORECAST_UNITS || 'si'
+    temperatureUnit = "C"
+    if unitType == "us"
+      temperatureUnit = "F"
+    response = "Currently: #{last_json.currently.summary} #{last_json.currently.temperature}°#{temperatureUnit}"
     response += "\nToday: #{last_json.hourly.summary}"
     response += "\nComing week: #{last_json.daily.summary}"
     if robot.adapterName == 'slack'
