@@ -39,6 +39,14 @@ You can find your Forecast.io API key on their [developers’ page](http://devel
 
 As for the `HUBOT_FORECAST_ROOM`, that depends on your adapter; the example above is for HipChat, for Slack, it would be something like `general`.
 
+If you live in the US, and wish to use Fahrenheit, you’ll want to:
+
+```bash
+$ heroku config:set HUBOT_FORECAST_UNITS=us
+```
+
+Otherwise your bot will report in Celsius, which is the default.
+
 Some additional EnvVars exist if you want to customize the “working time” for the forecast reporting (default values shown below):
 
 ```bash
