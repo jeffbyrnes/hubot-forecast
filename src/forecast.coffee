@@ -193,6 +193,7 @@ module.exports = (robot) ->
       totalIntensity = 0
 
       dataPoints = json['minutely']['data']
+      dataPointsWithPrecipitation = []
 
       for dataPoint in dataPoints
         intensity = dataPoint['precipIntensity'] || 0
