@@ -10,6 +10,7 @@
 #   HUBOT_LONGITUDE - Longitude in decimal degrees
 #   HUBOT_SLACK_BOTNAME - (Optional) Botname in slack
 #   HUBOT_FORECAST_UNITS - (Optional) Units to use. Use either 'us' or 'si'. Defaults to 'si'.
+#   HUBOT_FORECAST_PROBABILITY_THRESHOLD - (Optional) Probability to exceed, in decimal, before posting
 #
 # Commands:
 #   hubot weather - shows brief weather forecast from last cached data
@@ -27,6 +28,7 @@
 
 KV_KEY = 'forecast-alert-datapoint'
 LOCATION = process.env.HUBOT_LATITUDE + ',' + process.env.HUBOT_LONGITUDE
+PROBABILITY_THRESHOLD = process.env.HUBOT_FORECAST_PROBABILITY_THRESHOLD || 0.75
 
 activeDays = (process.env.HUBOT_FORECAST_DAYS ? 'mon,tue,wed,thu,fri')
   .toLowerCase()
@@ -152,7 +154,7 @@ module.exports = (robot) ->
         mostIntenseDataPoint = dataPoint if intensity > hightIntensity
 
     isAnomaly = true if dataPointsWithPrecipitation.length < 5
-    isAnomaly = true if mostIntenseDataPoint['precipProbability'] < 0.20
+    isAnomaly = true if mostIntenseDataPoint['precipProbability'] < PROBABILITY_THRESHOLD
     isAnomaly = true if totalIntensity < (3 * mostIntenseDataPoint['precipIntensity'])
 
     if !isAnomaly

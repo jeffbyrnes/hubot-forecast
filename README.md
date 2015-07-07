@@ -47,6 +47,12 @@ $ heroku config:set HUBOT_FORECAST_UNITS=us
 
 Otherwise your bot will report in Celsius, which is the default.
 
+If you’d like to only report based on a particular probability, you can set that like so (i.e., a 75% chance being the default):
+
+```bash
+HUBOT_FORECAST_PROBABILITY_THRESHOLD=0.75
+```
+
 Some additional EnvVars exist if you want to customize the “working time” for the forecast reporting (default values shown below):
 
 ```bash
