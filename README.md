@@ -1,3 +1,5 @@
+![](https://github.com/jeffbyrnes/hubot-forecast/blob/master/hubot-forecast.png)
+
 # hubot-forecast
 
 [![npm version](http://img.shields.io/npm/v/hubot-forecast.svg)](https://www.npmjs.org/package/hubot-forecast)
