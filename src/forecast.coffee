@@ -258,29 +258,22 @@ module.exports = (robot) ->
       handleContinuingWeather(json, callback)
 
   handleJSON = (json, callback) ->
-
     last_json = json
 
     if json['minutely']
-
       dataPoints = json['minutely']['data'] || []
 
       if dataPoints.length > 0
-
         totalIntensity = 0
         for dataPoint in dataPoints
           totalIntensity += (dataPoint['precipIntensity'] || 0)
 
         if totalIntensity == 0
-
           handleClear(json, callback)
-
         else
-
           handleWeather(json, callback)
 
   fetchForecast = (callback) ->
-
     forecastKey = process.env.HUBOT_FORECAST_KEY
     unitType = process.env.HUBOT_FORECAST_UNITS || 'si'
     exclude = 'flags'
@@ -315,12 +308,11 @@ module.exports = (robot) ->
   forecast = ->
     now = new Date()
 
-    isActive =
+    active =
       now.toUTCString().substr(0,3).toLowerCase() in activeDays and
       now.getUTCHours() in activeHours
 
-    if isActive
-
+    if active
       # Only run during specified time windows
 
       room = process.env.HUBOT_FORECAST_ROOM
@@ -376,7 +368,6 @@ module.exports = (robot) ->
         message: ''
     else
       msg.send response
-
 
   robot.respond /forecast|weather/i, (msg) ->
     if Object.keys(last_json).length == 0
