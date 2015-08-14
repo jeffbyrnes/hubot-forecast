@@ -29,6 +29,9 @@
 KV_KEY = 'forecast-alert-datapoint'
 LOCATION = process.env.HUBOT_LATITUDE + ',' + process.env.HUBOT_LONGITUDE
 PROBABILITY_THRESHOLD = process.env.HUBOT_FORECAST_PROBABILITY_THRESHOLD || 0.75
+FORECASTKEY = process.env.HUBOT_FORECAST_KEY
+UNITTYPE = process.env.HUBOT_FORECAST_UNITS || 'si'
+EXCLUDE = 'flags'
 
 activeDays = (process.env.HUBOT_FORECAST_DAYS ? 'mon,tue,wed,thu,fri')
   .toLowerCase()
@@ -44,6 +47,10 @@ activeHours = (process.env.HUBOT_FORECAST_TIME ? '07-20')
 last_json = {}
 
 module.exports = (robot) ->
+  unless FORECASTKEY? and LOCATION?
+    return robot.logger.error 'hubot-forecast is not loaded due to missing configuration.
+      HUBOT_FORECAST_KEY, HUBOT_LATITUDE, & HUBOT_LONGITUDE are required.'
+
   postWeatherAlert = (json, callback) ->
     postMessage = callback
     now = new Date()
@@ -274,12 +281,8 @@ module.exports = (robot) ->
           handleWeather(json, callback)
 
   fetchForecast = (callback) ->
-    forecastKey = process.env.HUBOT_FORECAST_KEY
-    unitType = process.env.HUBOT_FORECAST_UNITS || 'si'
-    exclude = 'flags'
-
-    base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{LOCATION}"
-    url = "#{base_url}?units=#{unitType}&exclude=#{exclude}"
+    base_url = "https://api.forecast.io/forecast/#{FORECASTKEY}/#{LOCATION}"
+    url = "#{base_url}?units=#{UNITTYPE}&exclude=#{EXCLUDE}"
 
     console.log "[Forecast] Requesting forecast data: #{url}"
 
