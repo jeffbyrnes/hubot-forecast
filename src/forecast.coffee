@@ -33,7 +33,7 @@ PROBABILITY_THRESHOLD = process.env.HUBOT_FORECAST_PROBABILITY_THRESHOLD || 0.75
 activeDays = (process.env.HUBOT_FORECAST_DAYS ? 'mon,tue,wed,thu,fri')
   .toLowerCase()
   .split ','
-activeHours = (process.env.HUBOT_FORECAST_TIME ? '11-23')
+activeHours = (process.env.HUBOT_FORECAST_TIME ? '07-20')
   .split(',')
   .reduce(((hours, range) ->
     [start, stop] = range.split '-'
