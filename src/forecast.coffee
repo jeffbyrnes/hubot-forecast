@@ -114,20 +114,16 @@ module.exports = (robot) ->
     alertIntensity = alertDataPoint['precipIntensity'] || 0
 
     if alertIntensity == 0
-
       # This is where we end up most of the time (clear forecast currently
       # following a clear forecast previously); no need to do anything
-
       console.log '[Forecast] Continued clear weather.'
 
       return
 
     else
-
       # Forecast has cleared after a period of inclement weather; post a
       # notification (not checking time since last alert because this seems like
       # very important information, and should be posted regardless)
-
       console.log '[Forecast] Weather has cleared.'
 
       dataPoints = json['minutely']['data']
@@ -165,7 +161,6 @@ module.exports = (robot) ->
     isAnomaly = true if totalIntensity < (3 * mostIntenseDataPoint['precipIntensity'])
 
     if !isAnomaly
-
       console.log '[Forecast] Posting alert for new inclement weather'
 
       postWeatherAlert(json, callback)
@@ -181,21 +176,16 @@ module.exports = (robot) ->
     since = (now - alertTime)
 
     if since > (3 * 60 * 60 * 1000)
-
       # Three hours is long enough to post a new alert regardless of severity.
       # Not checking for anomalies because 3+ hours of bad weather is very
       # unlikely to be bad data
-
       console.log '[Forecast] Posting reminder alert'
 
       postWeatherAlert(json, callback)
-
     else
-
       # If it's been less than three hours only post an alert if the weather is
       # getting significantly worse or there's enough data to predict a break
       # in the weather
-
       mostIntenseDataPoint = {}
       totalIntensity = 0
 
@@ -214,11 +204,10 @@ module.exports = (robot) ->
           mostIntenseDataPoint = dataPoint if intensity > hightIntensity
 
       hightIntensity = mostIntenseDataPoint['precipIntensity']
-      if hightIntensity > (2 * alertIntensity) && hightIntensity > 0.072
 
+      if hightIntensity > (2 * alertIntensity) && hightIntensity > 0.072
         # There's weather in the forecast that is at least twice as bad as the
         # weather was at the last alert so it's worth posting another alert
-
         console.log '[Forecast] Posting intensifying alert'
 
         postWeatherAlert(json, callback)
@@ -239,12 +228,10 @@ module.exports = (robot) ->
       dataPoints.reverse()
 
       if trailingClearDataPoints.length > 30
-
         # If at least the last 30 minutes of the current forecast is clear post
         # an alert about the break in the weather. The currently cached data
         # point is getting rolled over with this notification so that the cache
         # still represents bad weather
-
         console.log '[Forecast] Posting weather break alert'
 
         msg = 'WEATHER: There should be a break in the weather for at least 30 minutes within the hour.'
@@ -252,16 +239,12 @@ module.exports = (robot) ->
         postMessage(msg, 'warning', alertDataPoint)
 
   handleWeather = (json, callback) ->
-
     alertDataPoint = robot.brain.get(KV_KEY) || {}
     alertIntensity = alertDataPoint['precipIntensity'] || 0
 
     if alertIntensity == 0
-
       handleNewWeather(json, callback)
-
     else
-
       handleContinuingWeather(json, callback)
 
   handleJSON = (json, callback) ->
@@ -301,13 +284,11 @@ module.exports = (robot) ->
 
     if active
       # Only run during specified time windows
-
       room = process.env.HUBOT_FORECAST_ROOM
       fetchForecast (msg, msgColor, dataPoint) ->
 
         # Cache the data point related to this alert and send the message to
         # the room
-
         dataPoint['__alertTime'] = now
         robot.brain.set(KV_KEY, dataPoint)
 
@@ -322,11 +303,8 @@ module.exports = (robot) ->
             message: ''
         else
           robot.messageRoom room, msg
-
     else
-
       # Remove the alert data cache between work days
-
       console.log '[Forecast] Sleeping'
 
       robot.brain.remove(KV_KEY)
