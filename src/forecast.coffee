@@ -289,22 +289,6 @@ module.exports = (robot) ->
         json = JSON.parse(body)
         handleJSON(json, callback)
 
-  manualForecast = (callback) ->
-
-    forecastKey = process.env.HUBOT_FORECAST_KEY
-    exclude = 'flags'
-
-    base_url = "https://api.forecast.io/forecast/#{forecastKey}/#{LOCATION}"
-    url = "#{base_url}?units=us&exclude=#{exclude}"
-
-    console.log "[Forecast] Requesting forecast data: #{url}"
-
-    robot.http(url).get() (err, res, body) ->
-
-      if !err
-        json = JSON.parse(body)
-        callback(json)
-
   forecast = ->
     now = new Date()
 
@@ -371,7 +355,7 @@ module.exports = (robot) ->
 
   robot.respond /forecast|weather/i, (msg) ->
     if Object.keys(last_json).length == 0
-      manualForecast (json) ->
+      fetchForecast (json) ->
         last_json = json
         processLast msg, last_json
     else
