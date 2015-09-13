@@ -71,14 +71,14 @@ class Weather
       @log 'warn', 'No last forecast cached'
       lastForecast = {}
 
-    return lastForecast
+    lastForecast
 
   lastForecastTime: ->
     lastForecast = @lastForecast()
     if lastForecast and lastForecast.currently
-      return lastForecast.currently.time
+      lastForecast.currently.time
     else
-      return 0
+      0
 
   lastForecastStale: ->
     now = new Date()
