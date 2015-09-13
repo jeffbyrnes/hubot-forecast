@@ -92,6 +92,8 @@ class Weather
     false
 
   fetch: ->
+    that = @
+
     if @lastForecastStale()
       @log 'info', "Requesting forecast data"
 
@@ -99,10 +101,11 @@ class Weather
         units: UNITTYPE
 
       @forecastIo.forecast LATITUDE, LONGITUDE, (err, data) ->
-        @log 'error', err if err
+        that.log 'error', err if err
 
-        @robot.brain.set LAST_FORECAST, data
-        return data
+        that.robot.brain.set LAST_FORECAST, data
+
+        data
     else
       @log 'info', 'Last forecast data is still fresh, returning cached data'
       @lastForecast()
