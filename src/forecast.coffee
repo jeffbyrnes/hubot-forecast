@@ -104,14 +104,12 @@ class Weather
         that.log 'error', err if err
 
         that.robot.brain.set LAST_FORECAST, data
-
-        data
     else
       @log 'info', 'Last forecast data is still fresh, returning cached data'
-      @lastForecast()
 
   showLastForecast: (msg) ->
-    forecast = @fetch()
+    @fetch()
+    forecast = @robot.brain.get LAST_FORECAST
 
     response = "Currently: #{forecast.currently.summary} #{forecast.currently.temperature}°#{TEMP_UNIT}"
     response += "\nToday: #{forecast.hourly.summary}"
