@@ -75,7 +75,7 @@ class Weather
 
   lastForecastTime: ->
     lastForecast = @lastForecast()
-    if lastForecast.currently
+    if lastForecast and lastForecast.currently
       return lastForecast.currently.time
     else
       return 0
