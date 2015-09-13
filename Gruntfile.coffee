@@ -19,6 +19,7 @@ module.exports = (grunt) ->
       files: [
         "Gruntfile.js"
         "test/**/*.coffee"
+        "src/**/*coffee"
       ]
       tasks: ["test"]
 

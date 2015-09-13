@@ -74,3 +74,24 @@ describe 'forecast', ->
           'hubot forecast - same as hubot weather'
           'hubot weather - shows brief weather forecast from last cached data'
         ]
+
+    describe 'forecasts', ->
+      beforeEach ->
+        sinon.stub forecastIo, 'fetch', (latitude, longitude, callback)->
+          fixture = loadFixture 'forecast'
+          callback.call handleJSON fixture, callback
+
+      [
+        'hubot forecast'
+        'hubot weather'
+      ].forEach (msg) ->
+        describe msg, ->
+          it 'displays the forecast', ->
+            spy = sinon.spy()
+            adapter.on 'send', spy
+            adapter.receive new TextMessage user, msg
+            expect(spy).to.have.been.calledOnce
+            expect(spy.getCall(0).args[0]).not.to.be.null
+            expect(spy.getCall(0).args[1]).to.deep.equal ["""
+            forecast message here
+            """]
