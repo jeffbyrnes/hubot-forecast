@@ -82,7 +82,9 @@ class Weather
 
   lastForecastStale: ->
     now = new Date()
-    since = now - @lastForecastTime()
+
+    # JS loves to do time math in milliseconds
+    since = now - (@lastForecastTime() * 1000)
 
     # Only fetch a new forecast if the cached one is older than 5 minutes
     return true if since > (5 * 60 * 1000)
