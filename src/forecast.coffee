@@ -115,8 +115,8 @@ class Weather
     response += "\nToday: #{forecast.hourly.summary}"
     response += "\nComing week: #{forecast.daily.summary}"
 
-    if robot.adapterName == 'slack'
-      robot.emit 'slack-attachment',
+    if @robot.adapterName == 'slack'
+      @robot.emit 'slack-attachment',
         channel: msg.envelope.room
         content:
           color: '#000000'
