@@ -98,7 +98,7 @@ module.exports = (robot) ->
     date = new Date(timestamp * 1000)
     delta = (date - now)
 
-    _delay = "#{Math.round(delta / 60 / 1000)}"
+    _delay = "#{Math.max(0, Math.round(delta / 60 / 1000))}"
 
     _now = new Date().getTime()
     _link = "http://forecast.io/#/f/#{LOCATION}/#{Math.round(_now / 1000)}"
