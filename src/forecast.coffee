@@ -101,7 +101,6 @@ class Weather
       @forecastIo.forecast LATITUDE, LONGITUDE, (err, data) ->
         @log 'error', err if err
 
-        @log 'info', JSON.stringify(data, null, 2)
         @robot.brain.set LAST_FORECAST, data
         return data
     else
