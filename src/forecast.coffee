@@ -115,7 +115,6 @@ class Weather
     response += "\nToday: #{forecast.hourly.summary}"
     response += "\nComing week: #{forecast.daily.summary}"
 
-    robot.logger.info.response
     if robot.adapterName == 'slack'
       robot.emit 'slack-attachment',
         channel: msg.envelope.room
