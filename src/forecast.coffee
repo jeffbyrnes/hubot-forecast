@@ -127,6 +127,90 @@ class Weather
     else
       msg.send response
 
+  handleNewWeather: (forecast, callback) ->
+    dataPoints = forecast['minutely']['data']
+
+  handleContinuingWeather: (forecast, callback) ->
+    # stuff
+
+  newBadWeather: (forecast) ->
+    alertDataPoint = that.robot.brain.get KV_KEY || {}
+    alertIntensity = alertDataPoint['precipIntensity'] || 0
+
+    # This seems backwards, until you realize that its only new weather if we
+    # don’t have any previous data points stored in the brain
+    return true if alertIntensity == 0
+
+    false
+
+  handleWeather: (forecast, callback) ->
+    if newBadWeather()
+      handleNewWeather forecast, callback
+    else
+      handleContinuingWeather forecast, callback
+
+  handleClear: (forecast, callback) ->
+    if newGoodWeather()
+      # xyz
+    else
+      # abc
+
+  weatherIsBad: (forecast) ->
+    # Figure out if the weather is bad by looping over each minute-by-minute
+    # datapoint supplied by Forecast.io
+    dataPoints = forecast['minutely']['data']
+    totalIntensity = 0
+
+    for dataPoint in dataPoints
+      totalIntensity += dataPoint['precipIntensity']
+
+    return true if totalIntensity > 0
+
+    false
+
+  checkForecast: (forecast, callback) ->
+    if @weatherIsBad forecast
+      handleWeather forecast, callback
+    else
+      handleClear forecast, callback
+
+  weatherAlert: (msg) ->
+    that = @
+    now = new Date()
+
+    # Only run during specified time windows
+    active =
+      now.toUTCString().substr(0,3).toLowerCase() in activeDays and
+      now.getUTCHours() in activeHours
+
+    if active
+      room = process.env.HUBOT_FORECAST_ROOM
+
+      # Update the forecast cache if necessary
+      @fetch()
+      forecast = @robot.brain.get LAST_FORECAST
+
+      checkForecast forecast, (msg, msgColor, mostIntenseDataPoint) ->
+        # Cache the data point related to this alert and send the message to the room
+        mostIntenseDataPoint['__alertTime'] = now
+        that.robot.brain.set KV_KEY, mostIntenseDataPoint
+
+        if that.robot.adapterName == 'slack'
+          that.robot.emit 'slack-attachment',
+            channel: room
+            content:
+              color: msgColor
+              title: 'Weather Update!'
+              text: msg
+              fallback: msg
+            message: ''
+        else
+          that.robot.messageRoom room, msg
+    else
+      # Remove the alert data cache between work days
+      @log 'info', '[Forecast] Sleeping'
+
+      @robot.brain.remove KV_KEY
 
 module.exports = (robot) ->
   unless FORECASTKEY? and LATITUDE? and LONGITUDE?
@@ -137,8 +221,8 @@ module.exports = (robot) ->
 
   robot.weather = new Weather robot, forecastIo
 
-  # setInterval robot.weather.forecast, (5 * 60 * 1000)
-  # robot.weather.forecast()
+  setInterval robot.weather.weatherAlert, (5 * 60 * 1000)
+  robot.weather.weatherAlert()
 
   robot.respond /forecast|weather/i, (msg) ->
-    robot.weather.showLastForecast(msg)
+    robot.weather.showLastForecast msg
