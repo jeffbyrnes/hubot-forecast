@@ -315,9 +315,8 @@ module.exports = (robot) ->
   forecast()
 
   processLast = (msg, last_json) ->
-    unitType = process.env.HUBOT_FORECAST_UNITS || 'si'
     temperatureUnit = "C"
-    if unitType == "us"
+    if UNITTYPE == "us"
       temperatureUnit = "F"
     response = "Currently: #{last_json.currently.summary} #{last_json.currently.temperature}°#{temperatureUnit}"
     response += "\nToday: #{last_json.hourly.summary}"
