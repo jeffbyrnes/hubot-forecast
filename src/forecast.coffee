@@ -30,7 +30,7 @@ KV_KEY = 'forecast-alert-datapoint'
 LOCATION = process.env.HUBOT_LATITUDE + ',' + process.env.HUBOT_LONGITUDE
 PROBABILITY_THRESHOLD = process.env.HUBOT_FORECAST_PROBABILITY_THRESHOLD || 0.75
 FORECASTKEY = process.env.HUBOT_FORECAST_KEY
-UNITTYPE = process.env.HUBOT_FORECAST_UNITS || 'si'
+UNITTYPE = (process.env.HUBOT_FORECAST_UNITS || 'si').toLowerCase()
 EXCLUDE = 'flags'
 
 activeDays = (process.env.HUBOT_FORECAST_DAYS ? 'mon,tue,wed,thu,fri')
