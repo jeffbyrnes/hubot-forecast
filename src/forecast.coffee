@@ -59,7 +59,7 @@ class Weather
   constructor: (robot, forecastIo) ->
     @robot = robot
     @forecastIo = forecastIo
-    @log 'info', '[Forecast] Starting weather service...'
+    @log 'info', 'Starting weather service...'
 
   log: (type, msg) ->
     @robot.logger[type] "[Forecast] #{msg}"
@@ -208,7 +208,7 @@ class Weather
           that.robot.messageRoom room, msg
     else
       # Remove the alert data cache between work days
-      @log 'info', '[Forecast] Sleeping'
+      @log 'info', 'Sleeping'
 
       @robot.brain.remove KV_KEY
 
