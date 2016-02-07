@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "coffee-script": "~1.6",
-    "forecastio": "^0.2.0"
+    "forecastio": "^1.0.1"
   },
   "devDependencies": {
     "chai": "*",
