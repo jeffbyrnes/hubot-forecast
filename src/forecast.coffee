@@ -26,7 +26,7 @@
 #   jeffbyrnes
 #   oehokie
 
-ForecastIo = require 'forecastio'
+Forecast = require 'forecast.io-bluebird'
 
 KV_KEY = 'forecast-alert-datapoint'
 LAST_FORECAST = 'forecast-json'
@@ -39,8 +39,6 @@ if UNITTYPE == 'us'
   TEMP_UNIT = 'F'
 else
   TEMP_UNIT = 'C'
-
-EXCLUDE = 'flags'
 
 activeDays = (process.env.HUBOT_FORECAST_DAYS ? 'mon,tue,wed,thu,fri')
   .toLowerCase()
@@ -56,9 +54,9 @@ activeHours = (process.env.HUBOT_FORECAST_TIME ? '07-20')
 last_json = {}
 
 class Weather
-  constructor: (robot, forecastIo) ->
+  constructor: (robot, forecast) ->
     @robot = robot
-    @forecastIo = forecastIo
+    @forecast = forecast
     @log 'info', 'Starting weather service...'
 
   log: (type, msg) ->
@@ -95,28 +93,50 @@ class Weather
     that = @
 
     if @lastForecastStale()
-      @log 'info', "Requesting forecast data"
+      that.log 'info', "Requesting forecast data"
 
       options =
         units: UNITTYPE
 
-      @forecastIo.forecast LATITUDE, LONGITUDE, (err, data) ->
-        that.log 'error', err if err
-
+      @forecast.fetch(LATITUDE, LONGITUDE, options).then((result) ->
         that.robot.brain.set LAST_FORECAST, data
+      ).catch (error) ->
+        that.log 'error', error
     else
-      @log 'info', 'Last forecast data is still fresh, returning cached data'
+      that.log 'info', 'Last forecast data is still fresh, returning cached data'
+      that.robot.brain.get LAST_FORECAST
 
   showLastForecast: (msg) ->
-    @fetch()
-    forecast = @robot.brain.get LAST_FORECAST
+    that = @
 
-    response = "Currently: #{forecast.currently.summary} #{forecast.currently.temperature}°#{TEMP_UNIT}"
-    response += "\nToday: #{forecast.hourly.summary}"
-    response += "\nComing week: #{forecast.daily.summary}"
+    @fetch().then((result) ->
+      forecast = that.robot.brain.get LAST_FORECAST
 
-    if @robot.adapterName == 'slack'
-      @robot.emit 'slack-attachment',
+      response = "Currently: #{forecast.currently.summary} #{forecast.currently.temperature}°#{TEMP_UNIT}"
+      response += "\nToday: #{forecast.hourly.summary}"
+      response += "\nComing week: #{forecast.daily.summary}"
+
+      if that.robot.adapterName == 'slack'
+        that.robot.emit 'slack-attachment',
+          channel: msg.envelope.room
+          content:
+            color: '#000000'
+            title: 'Here is your weather report…'
+            text: response
+            fallback: response
+          message: ''
+      else
+        msg.send response
+    ).catch (error) ->
+      that.log 'error', error
+
+  handleNewWeather: (forecast, callback) ->
+    dataPoint = forecast['minutely']['data'][0]
+
+    response = 'WEATHER: The weather should be clear for at least an hour.'
+
+    if that.robot.adapterName == 'slack'
+      that.robot.emit 'slack-attachment',
         channel: msg.envelope.room
         content:
           color: '#000000'
@@ -126,9 +146,6 @@ class Weather
         message: ''
     else
       msg.send response
-
-  handleNewWeather: (forecast, callback) ->
-    dataPoints = forecast['minutely']['data']
 
   handleContinuingWeather: (forecast, callback) ->
     # stuff
@@ -143,17 +160,32 @@ class Weather
 
     false
 
+  newGoodWeather: (forecast) ->
+    alertDataPoint = that.robot.brain.get KV_KEY || {}
+    alertIntensity = alertDataPoint['precipIntensity'] || 0
+
+    return false if alertIntensity == 0
+
+    true
+
   handleWeather: (forecast, callback) ->
-    if newBadWeather()
-      handleNewWeather forecast, callback
+    if @newBadWeather()
+      @handleNewWeather forecast, callback
     else
-      handleContinuingWeather forecast, callback
+      @handleContinuingWeather forecast, callback
 
   handleClear: (forecast, callback) ->
-    if newGoodWeather()
-      # xyz
+    if @newGoodWeather()
+      # Forecast has cleared after a period of inclement weather; post a
+      # notification (not checking time since last alert because this seems like
+      # very important information, and should be posted regardless)
+      @log 'info', 'Weather has cleared.'
+      @handleNewWeather forecast, callback
     else
-      # abc
+      # This is where we end up most of the time (clear forecast currently
+      # following a clear forecast previously); no need to do anything
+      @log 'info', 'Continued clear weather.'
+      @handleContinuingWeather forecast, callback
 
   weatherIsBad: (forecast) ->
     # Figure out if the weather is bad by looping over each minute-by-minute
@@ -170,42 +202,44 @@ class Weather
 
   checkForecast: (forecast, callback) ->
     if @weatherIsBad forecast
-      handleWeather forecast, callback
+      @handleWeather forecast, callback
     else
-      handleClear forecast, callback
+      @handleClear forecast, callback
 
   weatherAlert: (msg) ->
     that = @
     now = new Date()
 
     # Only run during specified time windows
-    active =
-      now.toUTCString().substr(0,3).toLowerCase() in activeDays and
-      now.getUTCHours() in activeHours
+    active = true
+      # now.toUTCString().substr(0,3).toLowerCase() in activeDays and
+      # now.getUTCHours() in activeHours
 
     if active
       room = process.env.HUBOT_FORECAST_ROOM
 
       # Update the forecast cache if necessary
-      @fetch()
-      forecast = @robot.brain.get LAST_FORECAST
+      @fetch().then((result) ->
+        forecast = that.robot.brain.get LAST_FORECAST
 
-      checkForecast forecast, (msg, msgColor, mostIntenseDataPoint) ->
-        # Cache the data point related to this alert and send the message to the room
-        mostIntenseDataPoint['__alertTime'] = now
-        that.robot.brain.set KV_KEY, mostIntenseDataPoint
+        that.checkForecast forecast, (msg, msgColor, mostIntenseDataPoint) ->
+          # Cache the data point related to this alert and send the message to the room
+          mostIntenseDataPoint['__alertTime'] = now
+          that.robot.brain.set KV_KEY, mostIntenseDataPoint
 
-        if that.robot.adapterName == 'slack'
-          that.robot.emit 'slack-attachment',
-            channel: room
-            content:
-              color: msgColor
-              title: 'Weather Update!'
-              text: msg
-              fallback: msg
-            message: ''
-        else
-          that.robot.messageRoom room, msg
+          if that.robot.adapterName == 'slack'
+            that.robot.emit 'slack-attachment',
+              channel: room
+              content:
+                color: msgColor
+                title: 'Weather Update!'
+                text: msg
+                fallback: msg
+              message: ''
+          else
+            that.robot.messageRoom room, msg
+      ).catch (error) ->
+        that.log 'error', error
     else
       # Remove the alert data cache between work days
       @log 'info', 'Sleeping'
@@ -217,9 +251,11 @@ module.exports = (robot) ->
     return robot.logger.error 'hubot-forecast is not loaded due to missing configuration.
       HUBOT_FORECAST_KEY, HUBOT_LATITUDE, & HUBOT_LONGITUDE are required.'
 
-  forecastIo = new ForecastIo FORECASTKEY
+  forecast = new Forecast
+    key: FORECASTKEY,
+    timeout: 2500
 
-  robot.weather = new Weather robot, forecastIo
+  robot.weather = new Weather robot, forecast
 
   setInterval robot.weather.weatherAlert, (5 * 60 * 1000)
   robot.weather.weatherAlert()

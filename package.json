@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "coffee-script": "~1.6",
+    "forecast.io-bluebird": "0.0.1",
     "forecastio": "^1.0.1"
   },
   "devDependencies": {
