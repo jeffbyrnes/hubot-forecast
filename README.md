@@ -13,6 +13,36 @@ See [`src/forecast.coffee`](src/forecast.coffee) for full documentation.
 
 Important notice for Slack users: you will need hubot-slack >= 3.3.0 due to the usage of Slack attachments.
 
+## Spec
+
+* Provides on-demand retrieval of the weather
+* Offers both imperial & metric units
+* Provides regular checking of forecast
+    - Limits itself
+        + days of operation (`HUBOT_FORECAST_DAYS`)
+        + hours of operation (`HUBOT_FORECAST_TIME`)
+* Alerts on changes to the forecast
+    - Postive to negative (“about to rain”)
+    - Negative to postive (“rain clearing up”)
+* Retrieves forecast data from Forecast.io
+    - Caches this data in Hubot brain
+    - Iterate over the `minutely` portion to determine if weather is changing
+        + `minutely.data` is an array of objects representing every minute of the next hour
+        + utilizes `HUBOT_FORECAST_PROBABILITY_THRESHOLD` to avoid alerting on any potential rain
+            * This corresponds to `minutely.data[x].precipProbability` in the API response
+* Retrieval steps:
+    1. Fetch the forecast data (need to rely on promises? b/c async)
+        * If we have a cache and, if’s fresh (< 5min old) use the cached data, rejecting any `minutely.data` that is older that the current timestamp
+        * If cache is stale/empty, fetch new data & freshen the cache
+    2. Analyze the weather:
+        1. Figure out if the weather is bad by looping over each minute-by-minute datapoint (`minutely.data`) supplied by Forecast.io
+            * Bad:
+                - If this is newly bad, send a chat message
+                - If it’s staying bad, do nothing (maybe log?)
+            * Good:
+                - If this is newly good, send a chat message
+                - If it’s been good, do nothing (log?)
+
 ## Installation
 
 In hubot project repo, run:
