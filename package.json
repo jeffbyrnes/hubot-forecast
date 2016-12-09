@@ -33,7 +33,7 @@
     "grunt": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-mocha-test": "~0.7.0",
-    "grunt-release": "~0.6.0",
+    "grunt-release": "^0.14.0",
     "hubot": "^2.13.2",
     "hubot-mock-adapter": "^1.0.0",
     "matchdep": "^1.0.1",

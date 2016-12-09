@@ -13,7 +13,9 @@ module.exports = (grunt) ->
     release:
       options:
         tagName: "v<%= version %>"
-        commitMessage: "Prepared to release <%= version %>."
+        github:
+          repo: 'jeffbyrnes/hubot-forecast'
+          accessTokenVar: 'GRUNT_RELEASE_GITHUB_ACCESS_TOKEN'
 
     watch:
       files: [
