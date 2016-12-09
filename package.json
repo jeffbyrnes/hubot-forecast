@@ -26,7 +26,7 @@
     "url": "https://github.com/jeffbyrnes/hubot-forecast/issues"
   },
   "dependencies": {
-    "coffee-script": "~1.6"
+    "coffee-script": "^1.12.1"
   },
   "devDependencies": {
     "chai": "*",
