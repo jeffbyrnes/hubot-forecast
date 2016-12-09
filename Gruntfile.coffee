@@ -19,7 +19,7 @@ module.exports = (grunt) ->
 
     watch:
       files: [
-        "Gruntfile.js"
+        "Gruntfile.coffee"
         "test/**/*.coffee"
       ]
       tasks: ["test"]
