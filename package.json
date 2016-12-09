@@ -36,7 +36,7 @@
     "grunt-release": "~0.6.0",
     "hubot": "^2.13.2",
     "hubot-mock-adapter": "^1.0.0",
-    "matchdep": "~0.1.2",
+    "matchdep": "^1.0.1",
     "mocha": "^3.2.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0"
