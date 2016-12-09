@@ -25,7 +25,7 @@ module.exports = (grunt) ->
       tasks: ["test"]
 
   grunt.event.on "watch", (action, filepath, target) ->
-    grunt.log.writeln target + ": " + filepath + " has " + action
+    grunt.log.writeln "#{ target }: #{ filepath } has #{ action }"
     return
 
 
