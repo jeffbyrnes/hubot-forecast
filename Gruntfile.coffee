@@ -10,13 +10,6 @@ module.exports = (grunt) ->
 
         src: ["test/**/*.coffee"]
 
-    release:
-      options:
-        tagName: "v<%= version %>"
-        github:
-          repo: 'jeffbyrnes/hubot-forecast'
-          accessTokenVar: 'GRUNT_RELEASE_GITHUB_ACCESS_TOKEN'
-
     watch:
       files: [
         "Gruntfile.coffee"
