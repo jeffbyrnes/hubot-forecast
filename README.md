@@ -1,4 +1,6 @@
-![](https://github.com/jeffbyrnes/hubot-forecast/blob/master/hubot-forecast.png)
+# NOTICE: This project is no longer maintained, as Dark Sky is sunsetting their API, and new keys are not being offered as of 2020-03-31
+
+![](https://github.com/jeffbyrnes/hubot-forecast/raw/main/hubot-forecast.png)
 
 # hubot-forecast
 
@@ -37,7 +39,7 @@ $ heroku config:set \
     HUBOT_LONGITUDE=67.890
 ```
 
-You can find your Forecast.io API key on their [developers’ page](http://developer.forecast.io), and you can use [this tool](http://www.latlong.net) to determine your latitude & longitude from an address.
+You can find your Dark Sky API key on their [developers’ page](https://darksky.net/dev), and you can use [this tool](http://www.latlong.net) to determine your latitude & longitude from an address.
 
 As for the `HUBOT_FORECAST_ROOM`, that depends on your adapter; the example above is for HipChat, for Slack, it would be something like `general`.
 
